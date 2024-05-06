@@ -25,14 +25,15 @@ class LR:
       self.train_data_Y = train_data_Y
 
       self.train_data_X1 = np.c_[np.ones((len(train_data_X), 1)), train_data_X]
+      val_data_X = np.c_[np.ones((len(val_data_X), 1)), val_data_X]
       self.M = np.random.randn(len(self.train_data_X[0]) + 1, 1)
       
       best_model = self.M
       best_performance = 0
       for i in range(self.epochs):
-         y = self.sigmoid(self.M.dot(self.train_data_X))
-         pred_y = self.sigmoid(self.M.dot(self.train_data_X1))
-         gm = self.train_data_X1.dot(pred_y - y) * (2 / len(y))
+         y = self.sigmoid(self.M.T.dot(self.train_data_X1.T))
+         pred_y = self.sigmoid(self.M.T.dot(self.train_data_X1.T))
+         gm = self.train_data_X1.T.dot(pred_y.T - y.T) * (2 / len(y))
          _p = self.performance(val_data_X, val_data_Y)
 
          if _p > best_performance:
@@ -44,11 +45,11 @@ class LR:
 
 
    def performance(self, val_data_X, val_data_Y):
-      pred_y = self.sigmoid(self.M.dot(val_data_X))
+      pred_y = self.sigmoid(self.M.T.dot(val_data_X.T))
       if pred_y > 0.5:
-         prediction = 1
+         return 1
       else:
-         prediction = 0
+         return 0
       
 
 
@@ -70,7 +71,7 @@ def main():
    test_data_Y = test_data.iloc[:,-1:].to_numpy()
 
    model = LR(0.01, 50)
-   model.fit(train_data_X, train_data_Y)
+   model.fit(train_data_X, train_data_Y, val_data_X, val_data_Y)
 
 
 main()
